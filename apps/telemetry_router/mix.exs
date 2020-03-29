@@ -27,7 +27,7 @@ defmodule TelemetryRouter.MixProject do
   defp deps do
     [
       {:tortoise, "~> 0.9"},
-      {:broadway, "~> 0.5.0"}
+      {:amqp, "~> 1.4.0"}
     ]
   end
 end
