@@ -1,0 +1,6 @@
+%{
+  "broadway": {:hex, :broadway, "0.5.0", "6fdbbb00f2fa06ea4352df4db88d9d8a71ee78279570ef92bef840f4b3c9340f", [:mix], [{:gen_stage, "~> 0.14", [hex: :gen_stage, repo: "hexpm", optional: false]}], "hexpm", "f4d0fb7eac09018b106b62f417d988d985ae040d91fc9f5cb699653986d4acdd"},
+  "gen_stage": {:hex, :gen_stage, "0.14.3", "d0c66f1c87faa301c1a85a809a3ee9097a4264b2edf7644bf5c123237ef732bf", [:mix], [], "hexpm", "8453e2289d94c3199396eb517d65d6715ef26bcae0ee83eb5ff7a84445458d76"},
+  "gen_state_machine": {:hex, :gen_state_machine, "2.1.0", "a38b0e53fad812d29ec149f0d354da5d1bc0d7222c3711f3a0bd5aa608b42992", [:mix], [], "hexpm", "ae367038808db25cee2f2c4b8d0531522ea587c4995eb6f96ee73410a60fa06b"},
+  "tortoise": {:hex, :tortoise, "0.9.4", "3bca5f4475f80a5bd45aab644ddb3364dd0956b67f4202dcef6ed20e045ea3a6", [:mix], [{:gen_state_machine, "~> 2.0", [hex: :gen_state_machine, repo: "hexpm", optional: false]}], "hexpm", "d5c00d7c2329016376181e19f18116a10fc65691bd96b08e5b726ca050d10094"},
+}
