@@ -1,9 +1,9 @@
-defmodule TelemetryRouter.MixProject do
+defmodule TelemetryPublisher.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :telemetry_router,
+      app: :telemetry_publisher,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -19,16 +19,17 @@ defmodule TelemetryRouter.MixProject do
   def application do
     [
       extra_applications: [:lager, :logger, :amqp],
-      mod: {TelemetryRouter.Application, []}
+      mod: {TelemetryPublisher.Application, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tortoise, "~> 0.9"},
-      {:amqp, "~> 1.4.0"},
-      {:jason, "~> 1.1"}
+      {:httpoison, "~> 1.6"},
+      {:jason, "~> 1.1"},
+      {:broadway_rabbitmq, "~> 0.6.0"},
+      {:recase, "~> 0.5"}
     ]
   end
 end

@@ -1,7 +1,7 @@
 defmodule TelemetryRouter.Subscriber do
   use Supervisor
 
-  @broker_host "ec2-13-59-64-4.us-east-2.compute.amazonaws.com"
+  @broker_host "localhost"
   @broker_port 1883
 
   def start_link(opts) do
