@@ -20,12 +20,15 @@ defmodule TelemetryPublisher.Services.EntityManager do
 
   @impl true
   def init(_opts) do
-    {:ok, connection} = AMQP.Connection.open()
-    {:ok, channel} = AMQP.Channel.open(connection)
-    service = RPCClient.create_service(EntityManager, queue_name: @queue_name)
-
-    state = %{connection: connection, channel: channel, service: service}
-    {:ok, state}
+    with {:ok, connection} <- AMQP.Connection.open(),
+         {:ok, channel} <- AMQP.Channel.open(connection),
+         service <- RPCClient.create_service(EntityManager, queue_name: @queue_name) do
+      state = %{connection: connection, channel: channel, service: service}
+      {:ok, state}
+    else
+      {:error, reason} ->
+        {:stop, reason}
+    end
   end
 
   @impl true

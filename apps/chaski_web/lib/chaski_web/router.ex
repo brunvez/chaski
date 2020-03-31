@@ -20,7 +20,9 @@ defmodule ChaskiWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", ChaskiWeb do
-  #   pipe_through :api
-  # end
+  scope "/api/v1", ChaskiWeb.Api.V1, as: :api_v1 do
+    pipe_through :api
+
+    resources "/devices", DeviceController
+  end
 end
