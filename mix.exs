@@ -1,4 +1,4 @@
-defmodule Chaski.MixProject do
+defmodule Chaski.Umbrella.MixProject do
   use Mix.Project
 
   def project do
