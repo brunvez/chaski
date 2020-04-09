@@ -2,12 +2,13 @@ defmodule Chaski.Repo.Migrations.CreateDevices do
   use Ecto.Migration
 
   def change do
-    create table(:devices, primary_key: false) do
-      add :id, :binary_id, primary_key: true
+    create table(:devices) do
       add :name, :string
       add :client_id, :binary_id
 
       timestamps()
     end
+
+    create index(:devices, [:client_id])
   end
 end

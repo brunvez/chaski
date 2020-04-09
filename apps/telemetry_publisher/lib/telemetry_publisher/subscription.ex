@@ -6,7 +6,7 @@ defmodule TelemetryPublisher.Subscription do
 
   defmodule Device do
     @derive Jason.Encoder
-    defstruct([:id, :name])
+    defstruct([:id, :client_id])
   end
 
   def from_map(map) do
@@ -21,10 +21,11 @@ defmodule TelemetryPublisher.Subscription do
        }),
        do: %Subscription{
          id: id,
-         delay: if(delay < 1_000, do: 5_000, else: delay),
+         delay: delay,
          endpoint: endpoint,
          devices: Enum.map(devices, &create_device/1)
        }
 
-  defp create_device(%{"id" => id}), do: %Device{id: id}
+  defp create_device(%{"id" => id, "client_id" => client_id}),
+    do: %Device{id: id, client_id: client_id}
 end

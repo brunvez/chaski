@@ -4,8 +4,6 @@ defmodule Chaski.Devices.Device do
   alias Ecto.Changeset
   alias Chaski.Devices.Device
 
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema "devices" do
     field :name, :string
     field :client_id, :binary_id
@@ -22,8 +20,8 @@ defmodule Chaski.Devices.Device do
   end
 
   defp add_client_id(%Changeset{data: %Device{client_id: nil}} = changeset) do
-    IO.inspect(changeset)
     put_change(changeset, :client_id, Ecto.UUID.generate())
   end
+
   defp add_client_id(changeset), do: changeset
 end

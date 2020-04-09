@@ -44,19 +44,19 @@ defmodule TelemetryPublisher.RPCClient do
     end
   end
 
-  defp convert_response(%{"err" => err}) when not is_nil(err) do
-    {:error, err}
+  defp convert_response(%{"error" => error}) when not is_nil(error) do
+    {:error, error}
   end
 
-  defp convert_response(%{"response" => response}) when is_list(response) do
+  defp convert_response(%{"data" => response}) when is_list(response) do
     {:ok, Enum.map(response, &keys_to_snake_case/1)}
   end
 
-  defp convert_response(%{"response" => response}) when is_map(response) do
+  defp convert_response(%{"data" => response}) when is_map(response) do
     {:ok, keys_to_snake_case(response)}
   end
 
-  defp convert_response(%{"response" => response}) do
+  defp convert_response(%{"data" => response}) do
     {:ok, response}
   end
 

@@ -7,6 +7,5 @@ defmodule Chaski.Repo.Migrations.CreateClientApplications do
 
       timestamps()
     end
-
   end
 end

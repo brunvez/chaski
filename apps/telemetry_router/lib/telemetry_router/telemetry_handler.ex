@@ -15,8 +15,8 @@ defmodule TelemetryRouter.TelemetryHandler do
   end
 
   #  topic filter room/+/temp
-  def handle_message(["chaski", device_id, "telemetry"], payload, state) do
-    TelemetrySender.send(device_id, payload)
+  def handle_message(["chaski", client_id, "telemetry"], payload, state) do
+    TelemetrySender.send(client_id, payload)
 
     {:ok, state}
   end

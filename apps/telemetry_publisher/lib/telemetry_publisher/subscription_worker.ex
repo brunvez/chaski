@@ -1,6 +1,7 @@
 defmodule TelemetryPublisher.SubscriptionWorker do
   use GenServer
   alias TelemetryPublisher.Subscription
+  alias TelemetryPublisher.Subscription.Device
 
   # Client
 
@@ -13,6 +14,11 @@ defmodule TelemetryPublisher.SubscriptionWorker do
   @impl true
   def init(subscription) do
     schedule_next_message(subscription)
+
+    Enum.each(subscription.devices, fn device ->
+      {:ok, _} = Registry.register(ReadingsPubSub, "devices.#{device.client_id}", [])
+    end)
+
     {:ok, %{subscription: subscription, readings: []}}
   end
 
@@ -38,8 +44,10 @@ defmodule TelemetryPublisher.SubscriptionWorker do
   defp send_telemetry(_, []), do: :ok
 
   defp send_telemetry(%Subscription{endpoint: endpoint} = subscription, readings) do
+    readings = readings |> group_readings() |> translate_ids(subscription)
+
     resp =
-      HTTPoison.post(endpoint, Jason.encode!(%{readings: group_readings(readings)}), [
+      HTTPoison.post(endpoint, Jason.encode!(%{readings: readings}), [
         {"Content-Type", "application/json"}
       ])
 
@@ -54,8 +62,16 @@ defmodule TelemetryPublisher.SubscriptionWorker do
   end
 
   defp group_readings(readings) do
-    Enum.reduce(readings, %{}, fn %{"device_id" => device_id, "payload" => payload}, acc ->
-      Map.update(acc, device_id, [payload], &[payload | &1])
+    Enum.reduce(readings, %{}, fn %{"client_id" => client_id, "payload" => payload}, acc ->
+      Map.update(acc, client_id, [payload], &[payload | &1])
+    end)
+  end
+
+  defp translate_ids(readings, %Subscription{devices: devices}) do
+    Enum.reduce(readings, %{}, fn {client_id, value}, acc ->
+      %Device{id: device_id} = Enum.find(devices, &(&1.client_id == client_id))
+
+      Map.put(acc, device_id, value)
     end)
   end
 end

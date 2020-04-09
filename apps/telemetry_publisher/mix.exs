@@ -29,7 +29,8 @@ defmodule TelemetryPublisher.MixProject do
       {:httpoison, "~> 1.6"},
       {:jason, "~> 1.1"},
       {:broadway_rabbitmq, "~> 0.6.0"},
-      {:recase, "~> 0.5"}
+      {:recase, "~> 0.5"},
+      {:chaski, in_umbrella: true}
     ]
   end
 end

@@ -2,11 +2,8 @@ defmodule TelemetryPublisher.SubscriptionsManager do
   use GenServer
   alias TelemetryPublisher.Services.EntityManager, as: EntityManagerService
   alias TelemetryPublisher.Subscription
-  alias TelemetryPublisher.Subscription.Device
   alias TelemetryPublisher.SubscriptionWorker
 
-  @subscriptions_table :subscriptions
-  @device_subscriptions_table :subscription_devices
   @logs_table :logs
 
   # Client
@@ -15,7 +12,7 @@ defmodule TelemetryPublisher.SubscriptionsManager do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def add_reading(%{"request_id" => request_id} = reading) do
+  def add_reading(%{"request_id" => request_id, "client_id" => client_id} = reading) do
     Task.start(fn ->
       :ets.insert(
         @logs_table,
@@ -23,48 +20,28 @@ defmodule TelemetryPublisher.SubscriptionsManager do
       )
     end)
 
-    GenServer.cast(__MODULE__, {:add_reading, reading})
+    Registry.dispatch(ReadingsPubSub, "devices.#{client_id}", fn entries ->
+      for {pid, _} <- entries, do: send(pid, {:new_reading, reading})
+    end)
+
+    :ok
   end
 
   # Server (callbacks)
 
   @impl true
   def init(_) do
-    {:ok, %{workers: %{}}, {:continue, :create_tables}}
-  end
-
-  @impl true
-  def handle_continue(:create_tables, state) do
-    subscriptions = :ets.new(@subscriptions_table, [:set, :protected])
-    device_subscriptions_table = :ets.new(@device_subscriptions_table, [:bag, :protected])
     :ets.new(@logs_table, [:bag, :public, :named_table])
-
-    {:noreply,
-     Map.merge(state, %{
-       subscriptions_table: subscriptions,
-       device_subscriptions_table: device_subscriptions_table
-     }), {:continue, :fetch_subscriptions}}
+    {:ok, %{workers: %{}}, {:continue, :fetch_subscriptions}}
   end
 
   @impl true
   def handle_continue(
         :fetch_subscriptions,
-        %{
-          subscriptions_table: subscriptions_table,
-          device_subscriptions_table: device_subscriptions_table
-        } = state
+        state
       ) do
     with {:ok, subscriptions} <- Task.await(EntityManagerService.get_subscriptions()),
          subscriptions <- Enum.map(subscriptions, &Subscription.from_map/1) do
-      Enum.each(subscriptions, fn %Subscription{id: subscription_id, devices: devices} =
-                                    subscription ->
-        :ets.insert(subscriptions_table, {subscription_id, subscription})
-
-        Enum.each(devices, fn %Device{id: device_id} ->
-          :ets.insert(device_subscriptions_table, {device_id, subscription_id})
-        end)
-      end)
-
       {:noreply, state, {:continue, {:initialize_workers, subscriptions}}}
     end
   end
@@ -88,31 +65,38 @@ defmodule TelemetryPublisher.SubscriptionsManager do
   end
 
   @impl true
-  def handle_cast(
-        {:add_reading, %{"device_id" => device_id} = reading},
-        %{device_subscriptions_table: device_subscriptions_table, workers: workers} = state
-      ) do
-    subscription_ids = subscriptions_for_device(device_subscriptions_table, device_id)
-
-    workers
-    |> Map.take(subscription_ids)
-    |> Map.values()
-    |> Enum.each(fn worker -> send(worker, {:new_reading, reading}) end)
-
-    {:noreply, state}
-  end
-
-  @impl true
   def terminate(_reason, %{workers: workers}) do
     Enum.each(workers, fn {_, worker} ->
       DynamicSupervisor.terminate_child(SubscriptionsSupervisor, worker)
     end)
   end
 
-  defp subscriptions_for_device(device_subscriptions_table, device_id) do
-    :ets.select(
-      device_subscriptions_table,
-      [{{:"$1", :"$2"}, [{:==, :"$1", device_id}], [:"$2"]}]
-    )
+  def da_bomb do
+    alias Chaski.Devices
+    alias Chaski.ClientApplications
+
+    devices = Enum.map(1..70, fn i ->
+        {:ok, device} = Devices.create_device(%{name: "Device #{i}"})
+        device
+      end)
+
+    client_applications = Enum.map(1..1_000, fn i ->
+        {:ok, client_application} =
+          ClientApplications.create_client_application(%{name: "App #{i}"})
+
+        client_application
+      end)
+
+    Enum.map(client_applications, fn client_application ->
+      ClientApplications.create_subscription(
+        %{
+          name: "Sub #{client_application.id}",
+          endpoint: "localhost:3033",
+          delay: Enum.random(1_000..15_000)
+        },
+        client_application,
+        [Enum.random(devices), Enum.random(devices)]
+      )
+    end)
   end
 end

@@ -7,7 +7,8 @@ defmodule Chaski.Application do
 
   def start(_type, _args) do
     children = [
-      Chaski.Repo
+      Chaski.Repo,
+      Communication.Server
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Chaski.Supervisor)

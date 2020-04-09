@@ -6,7 +6,7 @@ defmodule TelemetryRouter.TelemetrySender do
 
   defmodule Message do
     @derive Jason.Encoder
-    defstruct [:device_id, :payload, :request_id]
+    defstruct [:client_id, :payload, :request_id]
   end
 
   # Client
@@ -15,8 +15,8 @@ defmodule TelemetryRouter.TelemetrySender do
     GenServer.start_link(__MODULE__, default, name: __MODULE__)
   end
 
-  def send(device_id, payload) do
-    GenServer.cast(__MODULE__, {:queue_telemetry, device_id, payload})
+  def send(client_id, payload) do
+    GenServer.cast(__MODULE__, {:queue_telemetry, client_id, payload})
   end
 
   # Server (callbacks)
@@ -43,9 +43,9 @@ defmodule TelemetryRouter.TelemetrySender do
   end
 
   @impl true
-  def handle_cast({:queue_telemetry, device_id, payload}, %{channel: channel} = state) do
+  def handle_cast({:queue_telemetry, client_id, payload}, %{channel: channel} = state) do
     Task.start(fn ->
-      queue_message(channel, device_id, payload)
+      queue_message(channel, client_id, payload)
     end)
 
     {:noreply, state}
@@ -56,14 +56,14 @@ defmodule TelemetryRouter.TelemetrySender do
     AMQP.Connection.close(connection)
   end
 
-  defp queue_message(channel, device_id, payload) do
+  defp queue_message(channel, client_id, payload) do
     request_id =
       :erlang.unique_integer()
       |> :erlang.integer_to_binary()
       |> Base.encode64()
 
     message = %Message{
-      device_id: device_id,
+      client_id: client_id,
       payload: Jason.decode!(payload),
       request_id: request_id
     }

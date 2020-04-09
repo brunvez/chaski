@@ -24,6 +24,9 @@ defmodule ChaskiWeb.Router do
     pipe_through :api
 
     resources "/devices", DeviceController
-    resources "/client_applications", ClientApplicationController
+
+    resources "/client_applications", ClientApplicationController do
+      resources "/subscriptions", SubscriptionController
+    end
   end
 end

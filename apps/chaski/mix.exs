@@ -38,7 +38,8 @@ defmodule Chaski.MixProject do
     [
       {:ecto_sql, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:amqp, "~> 1.4.0"}
     ]
   end
 

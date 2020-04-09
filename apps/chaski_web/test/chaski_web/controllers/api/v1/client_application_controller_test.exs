@@ -30,7 +30,11 @@ defmodule ChaskiWeb.API.V1.ClientApplicationControllerTest do
 
   describe "create client_application" do
     test "renders client_application when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.api_v1_client_application_path(conn, :create), client_application: @create_attrs)
+      conn =
+        post(conn, Routes.api_v1_client_application_path(conn, :create),
+          client_application: @create_attrs
+        )
+
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.api_v1_client_application_path(conn, :show, id))
@@ -42,7 +46,11 @@ defmodule ChaskiWeb.API.V1.ClientApplicationControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.api_v1_client_application_path(conn, :create), client_application: @invalid_attrs)
+      conn =
+        post(conn, Routes.api_v1_client_application_path(conn, :create),
+          client_application: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -50,8 +58,15 @@ defmodule ChaskiWeb.API.V1.ClientApplicationControllerTest do
   describe "update client_application" do
     setup [:create_client_application]
 
-    test "renders client_application when data is valid", %{conn: conn, client_application: %ClientApplication{id: id} = client_application} do
-      conn = put(conn, Routes.api_v1_client_application_path(conn, :update, client_application), client_application: @update_attrs)
+    test "renders client_application when data is valid", %{
+      conn: conn,
+      client_application: %ClientApplication{id: id} = client_application
+    } do
+      conn =
+        put(conn, Routes.api_v1_client_application_path(conn, :update, client_application),
+          client_application: @update_attrs
+        )
+
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, Routes.api_v1_client_application_path(conn, :show, id))
@@ -62,8 +77,15 @@ defmodule ChaskiWeb.API.V1.ClientApplicationControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, client_application: client_application} do
-      conn = put(conn, Routes.api_v1_client_application_path(conn, :update, client_application), client_application: @invalid_attrs)
+    test "renders errors when data is invalid", %{
+      conn: conn,
+      client_application: client_application
+    } do
+      conn =
+        put(conn, Routes.api_v1_client_application_path(conn, :update, client_application),
+          client_application: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -71,8 +93,13 @@ defmodule ChaskiWeb.API.V1.ClientApplicationControllerTest do
   describe "delete client_application" do
     setup [:create_client_application]
 
-    test "deletes chosen client_application", %{conn: conn, client_application: client_application} do
-      conn = delete(conn, Routes.api_v1_client_application_path(conn, :delete, client_application))
+    test "deletes chosen client_application", %{
+      conn: conn,
+      client_application: client_application
+    } do
+      conn =
+        delete(conn, Routes.api_v1_client_application_path(conn, :delete, client_application))
+
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->

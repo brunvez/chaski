@@ -9,6 +9,7 @@ defmodule TelemetryPublisher.Application do
     children = [
       {TelemetryPublisher.Services.EntityManager, []},
       {DynamicSupervisor, name: SubscriptionsSupervisor, strategy: :one_for_one},
+      {Registry, keys: :duplicate, name: ReadingsPubSub, partitions: System.schedulers_online()},
       {TelemetryPublisher.SubscriptionsManager, []},
       {TelemetryPublisher.TelemetryConsumer, []}
     ]

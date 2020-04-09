@@ -21,6 +21,12 @@ defmodule Chaski.Devices do
     Repo.all(Device)
   end
 
+  def get_devices(device_ids) when is_list(device_ids) do
+    Device
+    |> where([device], device.id in ^device_ids)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single device.
 

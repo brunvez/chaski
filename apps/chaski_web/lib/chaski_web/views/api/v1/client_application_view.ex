@@ -11,7 +11,6 @@ defmodule ChaskiWeb.Api.V1.ClientApplicationView do
   end
 
   def render("client_application.json", %{client_application: client_application}) do
-    %{id: client_application.id,
-      name: client_application.name}
+    %{id: client_application.id, name: client_application.name}
   end
 end
