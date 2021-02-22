@@ -1,4 +1,3 @@
 # Chaski
 
-**TODO: Add description**
-
+An IoT gateway that translates MQTT to HTTP. Hobby project
